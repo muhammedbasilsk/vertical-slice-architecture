@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vertical-slice-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./data/app.db
+      - API_VERSION=v1
+    volumes:
+      # Mount volume for SQLite database persistence
+      - app-data:/app/data
+      # Mount source code for development (optional - comment out for production)
+      - ./:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app-network
+
+volumes:
+  app-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
