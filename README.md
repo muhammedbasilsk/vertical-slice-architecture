@@ -28,6 +28,11 @@ vertical-slice-architecture/
 ├── main.py                          # FastAPI application entry point
 ├── config.py                        # Application configuration
 ├── requirements.txt                 # Python dependencies
+├── alembic.ini                      # Alembic configuration
+├── alembic/                         # Database migrations
+│   ├── env.py                       # Alembic environment setup
+│   ├── script.py.mako               # Migration template
+│   └── versions/                    # Migration files
 ├── shared/                          # Shared utilities
 │   ├── __init__.py
 │   └── database.py                  # Database models and connection
@@ -298,6 +303,106 @@ DATABASE_URL=postgresql://user:password@localhost/dbname
 # MySQL
 DATABASE_URL=mysql://user:password@localhost/dbname
 ```
+
+## Database Migrations with Alembic
+
+This project uses **Alembic** for database version control and migrations. Alembic allows you to track changes to your database schema over time and apply them in a controlled manner.
+
+### Initial Setup
+
+The Alembic configuration is already set up in this project. The initial migration has been created and includes the `users` and `orders` tables.
+
+### Common Alembic Commands
+
+#### Apply Migrations (Upgrade Database)
+
+To apply all pending migrations and update your database to the latest version:
+
+```bash
+alembic upgrade head
+```
+
+#### Create a New Migration
+
+After modifying database models in `shared/database.py`, create a new migration:
+
+```bash
+alembic revision --autogenerate -m "Description of changes"
+```
+
+Alembic will automatically detect changes to your models and generate the migration script.
+
+#### View Migration History
+
+To see the current migration status:
+
+```bash
+alembic current
+```
+
+To see all migrations:
+
+```bash
+alembic history
+```
+
+#### Rollback Migrations (Downgrade)
+
+To rollback the last migration:
+
+```bash
+alembic downgrade -1
+```
+
+To rollback to a specific migration:
+
+```bash
+alembic downgrade <revision_id>
+```
+
+To rollback all migrations:
+
+```bash
+alembic downgrade base
+```
+
+#### View SQL Without Applying
+
+To see the SQL that would be executed without actually running it:
+
+```bash
+alembic upgrade head --sql
+```
+
+### Migration Workflow
+
+1. **Modify your models** in `shared/database.py`
+2. **Generate migration**: `alembic revision --autogenerate -m "Add new field"`
+3. **Review the generated migration** in `alembic/versions/`
+4. **Apply the migration**: `alembic upgrade head`
+5. **Test your changes**
+
+### Migration Files
+
+Migration files are stored in `alembic/versions/`. Each file contains:
+- `upgrade()`: Function to apply the migration
+- `downgrade()`: Function to rollback the migration
+
+### Configuration
+
+The Alembic configuration is located in:
+- `alembic.ini`: Main configuration file
+- `alembic/env.py`: Environment setup (configured to use your application's database settings)
+
+The database URL is automatically loaded from `config.py`, so migrations will use the same database as your application.
+
+### Best Practices
+
+1. **Always review auto-generated migrations** before applying them
+2. **Test migrations in development** before applying to production
+3. **Keep migrations in version control** (commit them to git)
+4. **Never modify applied migrations** - create a new migration instead
+5. **Use descriptive migration messages** for easy tracking
 
 ## Testing
 
