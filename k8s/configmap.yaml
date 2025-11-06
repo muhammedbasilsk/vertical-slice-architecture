@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: vertical-slice
+data:
+  API_VERSION: "v1"
+  POSTGRES_DB: "vertical_slice_db"
