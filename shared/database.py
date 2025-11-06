@@ -1,8 +1,9 @@
 """Database configuration and models."""
 from datetime import datetime
 from typing import Generator
+import enum
 
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey, Enum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship
 
@@ -36,6 +37,27 @@ class UserModel(Base):
 
     # Relationship
     orders = relationship("OrderModel", back_populates="user", cascade="all, delete-orphan")
+
+
+class UserRole(str, enum.Enum):
+    """User role enum for v2 API."""
+
+    USER = "user"
+    ADMIN = "admin"
+    MODERATOR = "moderator"
+
+
+class UserModelV2(Base):
+    """User database model for v2 API."""
+
+    __tablename__ = "users_v2"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.USER, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
 
 class OrderModel(Base):

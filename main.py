@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from shared.database import init_db
 from features.users.endpoints import router as users_router
+from features.users_v2.endpoints import router as users_v2_router
 from features.orders.endpoints import router as orders_router
 
 # Initialize database
@@ -36,6 +37,10 @@ def read_root():
     return {
         "message": "Welcome to Vertical Slice Architecture API",
         "docs": "/api/docs",
+        "versions": {
+            "v1": "/api/v1",
+            "v2": "/api/v2"
+        },
         "version": "1.0.0"
     }
 
@@ -50,8 +55,12 @@ def health_check():
 
 
 # Register feature routers
+# V1 API
 app.include_router(users_router, prefix=f"/api/{settings.api_version}")
 app.include_router(orders_router, prefix=f"/api/{settings.api_version}")
+
+# V2 API
+app.include_router(users_v2_router, prefix="/api/v2")
 
 
 if __name__ == "__main__":
